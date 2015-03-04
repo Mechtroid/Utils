@@ -11,8 +11,7 @@
 #include <stdlib.h>
 #include <STDarg.h>
 #include "stddef.h"
-#include "UTIL1.h"
-#include "FAT1.h"
+
 
 #define IsUpper(c)	(((c)>='A')&&((c)<='Z'))
 #define IsLower(c)	(((c)>='a')&&((c)<='z'))

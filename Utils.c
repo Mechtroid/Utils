@@ -6,10 +6,10 @@
  */
 #include "Utils.h"
 #include <ctype.h>
-#include "AString.h"
 
-
-
+#ifndef _USE_STRFUNC
+#define _USE_STRFUNC 1
+#endif
 
 
 //================
@@ -158,7 +158,7 @@ static void putc_bfd 	(  				//Helper function for csprintf, below.
 						char c
 						)
 {
-	UINT bw;
+	unsigned int bw;
 	int i;
 
 
@@ -201,7 +201,7 @@ static void putc_bfd 	(  				//Helper function for csprintf, below.
 	if (i >= (int)(sizeof pb->buf) - 3) {	/* Send buffered characters */
 		bw = 0;
 		while(bw < i) pb->sendChar(pb->buf[bw++]);
-		i = (bw == (UINT)i) ? 0 : -1;
+		i = (bw == (unsigned int)i) ? 0 : -1;
 	}
 	pb->idx = i;
 	pb->nchr++;
@@ -229,9 +229,9 @@ int csprintf_va	(											/*returns number of characters written.*/
 				)
 {
 	uint8_t f, r;
-	UINT nw, i, j, w;
+	unsigned int nw, i, j, w;
 	uint32_t v;
-	TCHAR c, d, s[16], *p;
+	char c, d, s[16], *p;
 	putbuff pb;
 
 	pb.sendChar = sendChar;
@@ -265,7 +265,7 @@ int csprintf_va	(											/*returns number of characters written.*/
 		if (IsLower(d)) d -= 0x20;
 		switch (d) {				/* Type is... */
 		case 'S' :					/* String */
-			p = va_arg(arp, TCHAR*);
+			p = va_arg(arp, char*);
 			for (j = 0; p[j]; j++) ;
 			if (!(f & 2)) {
 				while (j++ < w) putc_bfd(&pb, ' ');
@@ -274,7 +274,7 @@ int csprintf_va	(											/*returns number of characters written.*/
 			while (j++ < w) putc_bfd(&pb, ' ');
 			continue;
 		case 'C' :					/* Character */
-			putc_bfd(&pb, (TCHAR)va_arg(arp, int)); continue;
+			putc_bfd(&pb, (char)va_arg(arp, int)); continue;
 		case 'B' :					/* Binary */
 			r = 2; break;
 		case 'O' :					/* Octal */
@@ -296,7 +296,7 @@ int csprintf_va	(											/*returns number of characters written.*/
 		}
 		i = 0;
 		do {
-			d = (TCHAR)(v % r); v /= r;
+			d = (char)(v % r); v /= r;
 			if (d > 9) d += (c == 'x') ? 0x27 : 0x07;
 			s[i++] = d + '0';
 		} while (v && i < sizeof s / sizeof s[0]);
@@ -318,6 +318,7 @@ int csprintf_va	(											/*returns number of characters written.*/
 //================
 //====FILE SYS====
 //================
+//(This function requires fatfs
 
 /* Lists all files in a directory and its subdirectories.
  * Example from http://elm-chan.org/fsw/ff/en/readdir.html
